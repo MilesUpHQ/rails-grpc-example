@@ -16,6 +16,7 @@ group :development, :test do
   gem 'factory_bot_rails' # For test data
   gem 'faker' # For generating fake data
   gem 'dotenv-rails'
+  gem 'rubocop'
 end
 
 group :test do
