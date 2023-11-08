@@ -13,12 +13,12 @@ class User < ApplicationRecord
 
   # Method to encode a token
   def self.encode_token(payload)
-    JWT.encode(payload, Rails.application.secrets.secret_key_base)
+    JWT.encode(payload, Rails.application.credentials.secret_key_base)
   end
 
   # Method to decode a token
   def self.decode_token(token)
-    body = JWT.decode(token, Rails.application.secrets.secret_key_base)[0]
+    body = JWT.decode(token, Rails.application.credentials.secret_key_base)[0]
     HashWithIndifferentAccess.new body
   rescue
     nil
