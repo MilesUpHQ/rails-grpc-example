@@ -57,6 +57,62 @@ RSpec.describe 'Products', type: :request do
 
   end
 
+  describe 'POST /products with images' do
+    let(:valid_attributes) do
+      {
+        name: 'New Product',
+        description: 'Great product',
+        price: 29.99,
+        inventory_count: 10
+      }
+    end
+    let(:image) { fixture_file_upload(Rails.root.join('spec/fixtures/files', 'image.jpeg'), 'image/jpeg') }
+    let(:valid_image) { generate_test_image }
+    let(:invalid_image) { generate_test_image(name: 'test_file.txt', content_type: 'text/plain') }
+    let(:oversized_image) { generate_test_image(size: 3.megabytes)}
+
+
+    context 'with valid parameters and images' do
+      it 'creates a new product and attaches images' do
+        expect {
+          post products_path, params: { product: valid_attributes.merge(images: [image]) }, headers: valid_headers.merge('Content-Type': 'multipart/form-data')
+        }.to change(Product, :count).by(1)
+        .and change(ActiveStorage::Attachment, :count).by(1)
+
+        expect(response).to have_http_status(:created)
+        expect(response.content_type).to eq('application/json; charset=utf-8')
+
+        # Parse the response body to confirm image data is present
+        json_response = JSON.parse(response.body)
+        expect(json_response['images']).to be_present
+        expect(Product.last.images).to be_attached
+        # expect(Product.last.images.first.blob.byte_size).to be > 0
+      end
+
+      # it 'attaches the uploaded file' do
+      #   file = generate_test_image(size: 2.megabytes)
+      #   post products_path, params: { product: valid_attributes.merge(images: [file]) }, headers: valid_headers.merge('Content-Type': 'multipart/form-data')
+
+      #   expect(Product.last.images.first.blob.byte_size).to be > 0
+      # end
+
+      it 'rejects non-image files' do
+        post products_path, params: { product: valid_attributes.merge(images: [invalid_image]) }, headers: valid_headers.merge('Content-Type': 'multipart/form-data')
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json['errors']['images']).to include('Must be a JPEG, PNG, or GIF')
+      end
+
+      it 'rejects files that are too large' do
+        # oversized_image = generate_test_image(size: 3.megabytes)
+        post products_path, params: { product: valid_attributes.merge(images: [@uploaded_file]) }, headers: valid_headers.merge('Content-Type': 'multipart/form-data')
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(json['errors']['images']).to include('is too large (should be at most 5 MB)')
+      end
+    end
+  end
+
   describe 'GET /products' do
     it 'retrieves a list of products' do
       get '/products', headers: headers
@@ -127,6 +183,4 @@ RSpec.describe 'Products', type: :request do
 
   end
 
-
-  # ... Additional tests for GET, PUT, DELETE ...
 end

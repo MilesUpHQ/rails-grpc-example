@@ -15,10 +15,12 @@ class ProductsController < ApplicationController
 
   # POST /products
   def create
-    @product = Product.new(product_params)
+    @product = Product.new(product_params.except(:images))
+    attach_images if product_params[:images]
 
     if @product.save
-      render json: @product, status: :created, location: @product
+      image_urls = @product.images.map { |image| rails_blob_url(image, only_path: true) }
+      render json: @product.as_json.merge(images: image_urls), status: :created
     else
       render json: { errors: @product.errors}, status: :unprocessable_entity
     end
@@ -46,6 +48,12 @@ class ProductsController < ApplicationController
   end
 
   def product_params
-    params.require(:product).permit(:name, :description, :price, :inventory_count)
+    params.require(:product).permit(:name, :description, :price, :inventory_count, images: [])
+  end
+
+  def attach_images
+    product_params[:images].each do |image|
+      @product.images.attach(image)
+    end
   end
 end
