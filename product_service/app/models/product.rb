@@ -4,6 +4,7 @@ class Product < ApplicationRecord
   validates :name, presence: :true
   validate :image_type, if: :images_attached?
   validate :image_size, on: [:create, :update], if: :images_attached?
+  # validates :images, presence: :true, blob: { size_range: 1..(2.megabytes) }, if: :images_attached?
 
    # Check if images are attached for the instance.
   def images_attached?
@@ -27,8 +28,8 @@ class Product < ApplicationRecord
   def image_size
     images.each do |image|
       image.blob.analyze
-      if image.analyzed? && image.blob.byte_size > 1.megabyte
-        errors.add(:images, 'is too large')
+      if image.analyzed? && image.blob.byte_size > 3.megabyte
+        errors.add(:images, 'is too large (should be at most 3 MB)')
       end
     end
   end

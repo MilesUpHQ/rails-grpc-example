@@ -67,6 +67,7 @@ RSpec.describe 'Products', type: :request do
       }
     end
     let(:image) { fixture_file_upload(Rails.root.join('spec/fixtures/files', 'image.jpeg'), 'image/jpeg') }
+    let(:large_image) { fixture_file_upload(Rails.root.join('spec/fixtures/files', 'large_image.jpg'), 'image/jpeg') }
     let(:valid_image) { generate_test_image }
     let(:invalid_image) { generate_test_image(name: 'test_file.txt', content_type: 'text/plain') }
     let(:oversized_image) { generate_test_image(size: 3.megabytes)}
@@ -105,10 +106,10 @@ RSpec.describe 'Products', type: :request do
 
       it 'rejects files that are too large' do
         # oversized_image = generate_test_image(size: 3.megabytes)
-        post products_path, params: { product: valid_attributes.merge(images: [@uploaded_file]) }, headers: valid_headers.merge('Content-Type': 'multipart/form-data')
+        post products_path, params: { product: valid_attributes.merge(images: [large_image]) }, headers: valid_headers.merge('Content-Type': 'multipart/form-data')
 
         expect(response).to have_http_status(:unprocessable_entity)
-        expect(json['errors']['images']).to include('is too large (should be at most 5 MB)')
+        expect(json['errors']['images']).to include('is too large (should be at most 3 MB)')
       end
     end
   end
