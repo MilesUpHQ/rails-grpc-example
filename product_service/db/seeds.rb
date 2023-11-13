@@ -8,4 +8,22 @@
 #     MovieGenre.find_or_create_by!(name: genre_name)
 #   end
 # db/seeds.rb
+require 'open-uri'
+
 Product.create(name: 'Example Product', description: 'This is an example product.', price: 9.99, inventory_count: 100)
+
+30.times do
+  product = Product.new(
+    name: Faker::Commerce.product_name,
+    price: Faker::Commerce.price(range: 0.99..99.99),
+    description: Faker::Lorem.sentence(word_count: 20)
+  )
+
+  # Attach an image from the fixtures files
+  file_path = Rails.root.join('spec', 'fixtures', 'files', 'image.jpeg')
+  product.images.attach(io: File.open(file_path), filename: 'image.jpeg')
+
+  product.save!
+end
+
+puts "Created #{Product.count} products."
