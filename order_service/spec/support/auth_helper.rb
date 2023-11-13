@@ -8,4 +8,5 @@ end
 
 RSpec.configure do |config|
   config.include AuthHelper, type: :controller
+  config.include AuthHelper, type: :request
 end

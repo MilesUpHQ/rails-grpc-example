@@ -9,7 +9,6 @@ class ApplicationController < ActionController::API
 
   def authenticate_user
     auth_header = request.headers['Authorization']
-    p "auth" + auth_header
     token = auth_header.split(' ').last if auth_header
 
     if token.blank? || token.nil?
