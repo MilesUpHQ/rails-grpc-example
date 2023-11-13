@@ -5,6 +5,8 @@ import Header from "./components/Header";
 import ProductList from "./components/ProductList";
 import Cart from "./components/Cart";
 import Checkout from "./components/Checkout";
+import ProductDetails from "./components/ProductDetails";
+import Footer from "./components/Footer";
 
 function App() {
   return (
@@ -14,7 +16,9 @@ function App() {
         <Route path="/" element={<ProductList />} />
         <Route path="/cart" element={<Cart />} />
         <Route path="/checkout" element={<Checkout />} />
+        <Route path="/product/:productId" element={<ProductDetails />} />
       </Routes>
+      <Footer />
     </Router>
   );
 }
