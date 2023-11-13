@@ -125,10 +125,11 @@ RSpec.describe 'Products', type: :request do
   describe 'GET /products/:id' do
     let(:product) { create(:product) }
 
-    it 'retrieves a specific product' do
+    it 'retrieves a specific product with images' do
       get "/products/#{product.id}", headers: valid_headers
       expect(response).to have_http_status(:ok)
       expect(json['id']).to eq(product.id)
+      expect(json['image_urls']).to be_present
     end
 
     context 'when product does not exist' do
