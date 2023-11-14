@@ -14,6 +14,11 @@ class ProductsController < ApplicationController
     render json: @product, status: :ok
   end
 
+  def details
+    @products = Product.where(id: params[:product_ids].split(','))
+    render json: @products, status: :ok
+  end
+
   # POST /products
   def create
     @product = Product.new(product_params.except(:images))

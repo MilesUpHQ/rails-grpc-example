@@ -24,7 +24,8 @@ class OrdersController < ApplicationController
   def cart
     cart = find_current_user_cart
     if cart
-      render json: cart, status: :ok
+      p cart.line_items_with_product_details
+      render json: cart.as_json.merge(line_items: cart.line_items_with_product_details), status: :ok
     else
       render json: { message: 'No active cart found' }, status: :not_found
     end

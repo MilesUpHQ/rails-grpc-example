@@ -6,7 +6,11 @@ Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
   # direct :rails_storage_proxy, ActiveStorage::Current.host
 
-  resources :products
+  resources :products do
+    collection do
+      get :details
+    end
+  end
   # Defines the root path route ("/")
   # root "posts#index"
 end
