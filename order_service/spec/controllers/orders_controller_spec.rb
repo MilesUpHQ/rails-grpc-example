@@ -8,11 +8,13 @@ RSpec.describe OrdersController, type: :controller do
   let(:invalid_attributes) { { user_id: nil, total_price: -10.0, status: nil } }
   let(:token) { generate_token(user_id) }
   let(:order) {create(:order)}
+  let(:guest_id) { "guest_#{SecureRandom.hex(10)}" } # Example guest ID
 
   # Simulate authentication
   before do
     allow(controller).to receive(:authenticate_user).and_return(user_id)
     controller.instance_variable_set(:@current_user_id, user_id)
+    controller.instance_variable_set(:@current_guest_id, guest_id)
   end
 
   describe 'GET #show' do
@@ -23,6 +25,26 @@ RSpec.describe OrdersController, type: :controller do
   end
 
   describe 'POST #create' do
+
+    context 'as an authenticated user' do
+      it 'creates a new order for the user' do
+        # Simulate user authentication
+        request.headers['Authorization'] = "Bearer #{generate_token(user_id)}"
+        post :create, params: { order: valid_attributes }
+        expect(response).to have_http_status(:created)
+        expect(Order.last.user_id).to eq(user_id)
+      end
+    end
+
+    context 'as a guest user' do
+      it 'creates a new order for the guest' do
+        request.headers['Guest-ID'] = guest_id
+        post :create, params: { order: valid_attributes, guest_id: guest_id }
+        expect(response).to have_http_status(:created)
+        expect(Order.last.guest_id).to eq(guest_id)
+      end
+    end
+
     context 'with valid params' do
       it 'creates a new Order' do
         expect {

@@ -3,9 +3,34 @@ require 'rails_helper'
 
 RSpec.describe "Orders", type: :request do
   let(:user_id) { rand(1..100) }
+  let(:guest_id) { "guest_#{SecureRandom.hex(10)}" } # Example guest ID
   let(:valid_attributes) { { total_price: 100.0, status: 'pending', line_items: {product_id: rand(1..100), price: 100.0, quantity: 1} } }
   let(:valid_headers) { { 'Authorization': "Bearer #{generate_token(user_id)}" } }
   let(:invalid_headers) { { 'Authorization': "Bearer 100" } }
+
+  describe "GET /cart" do
+    context "as an authenticated user" do
+      it "returns the current user's cart" do
+        # Create a cart for the user
+        create(:order, user_id: user_id, status: 'cart')
+        # Simulate user authentication
+        get '/cart', headers: { 'Authorization' => "Bearer #{generate_token(user_id)}" }
+        expect(response).to have_http_status(:ok)
+        expect(json_response['user_id']).to eq(user_id)
+      end
+    end
+
+    context "as a guest user" do
+      it "returns the guest's cart" do
+        # Create a cart for the guest
+        create(:order, guest_id: guest_id, status: 'cart')
+        # Simulate guest access
+        get '/cart', headers: { 'Guest-ID' => guest_id }
+        expect(response).to have_http_status(:ok)
+        expect(json_response['guest_id']).to eq(guest_id)
+      end
+    end
+  end
 
   describe "POST /orders" do
     context "with valid parameters" do

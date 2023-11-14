@@ -10,7 +10,7 @@
 # db/seeds.rb
 require 'open-uri'
 
-Product.create(name: 'Example Product', description: 'This is an example product.', price: 9.99, inventory_count: 100)
+# Product.create(name: 'Example Product', description: 'This is an example product.', price: 9.99, inventory_count: 100)
 
 30.times do
   product = Product.new(
@@ -20,8 +20,8 @@ Product.create(name: 'Example Product', description: 'This is an example product
   )
 
   # Attach an image from the fixtures files
-  file_path = Rails.root.join('spec', 'fixtures', 'files', 'image.jpeg')
-  product.images.attach(io: File.open(file_path), filename: 'image.jpeg')
+  file_path = Rails.root.join('spec', 'fixtures', 'files', 'image.png')
+  product.images.attach(io: File.open(file_path), filename: 'image.png')
 
   product.save!
 end
