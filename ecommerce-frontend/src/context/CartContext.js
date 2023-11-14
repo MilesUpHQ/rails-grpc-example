@@ -1,5 +1,5 @@
 import axios from "axios";
-import React, { createContext, useState, useContext } from "react";
+import React, { createContext, useState, useContext, useEffect } from "react";
 import Cookies from "js-cookie";
 
 const CartContext = createContext();
@@ -28,6 +28,10 @@ const getGuestId = () => {
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+
+  useEffect(() => {
+    fetchCart();
+  }, []);
 
   const addToCart = (product) => {
     const guestId = getGuestId();

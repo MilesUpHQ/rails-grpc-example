@@ -6,10 +6,6 @@ import { useCart } from "../context/CartContext";
 function Cart() {
   const { cartItems, setItemQuantity, fetchCart } = useCart(); // Assume these functions are implemented in your context
 
-  useEffect(() => {
-    fetchCart();
-  }, []);
-
   const subtotal = 0; // Assuming this calculates the subtotal
   const total = subtotal; // Modify this as needed, e.g., add shipping or taxes
 
