@@ -1,5 +1,5 @@
 class OrdersController < ApplicationController
-  before_action :authenticate_user, only: [:create, :update, :cart]
+  before_action :authenticate_user, only: [:create, :update, :cart, :remove_item]
   before_action :set_order, only: [:show, :update, :destroy, :checkout]
 
   # POST /orders
@@ -37,6 +37,17 @@ class OrdersController < ApplicationController
       render json: @order
     else
       render json: @order.errors, status: :unprocessable_entity
+    end
+  end
+
+  def remove_item
+    line_item = LineItem.find_by(id: params[:line_item_id], order_id: params[:order_id])
+
+    if line_item
+      line_item.destroy
+      render json: { message: 'Item removed from cart' }, status: :ok
+    else
+      render json: { error: 'Item not found in cart' }, status: :not_found
     end
   end
 

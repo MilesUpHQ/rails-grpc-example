@@ -10,6 +10,8 @@ Rails.application.routes.draw do
     end
   end
 
+  delete '/orders/remove/:line_item_id', to: 'orders#remove_item'
+
   # Defines the root path route ("/")
   # root "posts#index"
 end
