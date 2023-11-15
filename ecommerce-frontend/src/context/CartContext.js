@@ -7,13 +7,9 @@ const CartContext = createContext();
 export const useCart = () => useContext(CartContext);
 
 const generateGuestId = () => {
-  // Generate a timestamp component
   const timestamp = new Date().getTime().toString(36);
 
-  // Generate a random component
   const randomComponent = Math.random().toString(36).substring(2, 15);
-
-  // Combine both components
   return `${timestamp}-${randomComponent}`;
 };
 
@@ -29,10 +25,25 @@ const getGuestId = () => {
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
   const [orderId, setOrderId] = useState(null);
+  const [orderTotal, setOrderTotal] = useState(0);
 
   useEffect(() => {
     fetchCart();
   }, []);
+
+  useEffect(() => {
+    calculateTotal();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cartItems]);
+
+  // Calculate total price of cart items
+  const calculateTotal = () => {
+    const newTotal = cartItems.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+    setOrderTotal(newTotal);
+  };
 
   const addToCart = (product) => {
     const guestId = getGuestId();
@@ -50,7 +61,7 @@ export const CartProvider = ({ children }) => {
       // Add new item to cart
       setCartItems([...cartItems, { ...product, quantity: 1 }]);
     }
-    // setCartItems([...cartItems, product]);
+
     // Make API call to add product to cart in backend
     const { id, price, quantity } = product;
     const lineItemParams = { product_id: id, price, quantity };
@@ -87,12 +98,12 @@ export const CartProvider = ({ children }) => {
   };
 
   // Update quantity of a cart item
-  const setItemQuantity = (item, newQuantity) => {
+  const setItemQuantity = (lineItem, newQuantity) => {
     if (newQuantity <= 0) return;
 
     const guestId = getGuestId();
     const updatedItems = cartItems.map((item) =>
-      item.id === item.id ? { ...item, quantity: newQuantity } : item
+      item.id === lineItem.id ? { ...item, quantity: newQuantity } : item
     );
 
     // Update the backend
@@ -102,8 +113,8 @@ export const CartProvider = ({ children }) => {
         order: {
           line_items_attributes: [
             {
-              id: item.id,
-              product_id: item.product_id,
+              id: lineItem.id,
+              product_id: lineItem.product_id,
               quantity: newQuantity,
             },
           ],
@@ -123,13 +134,6 @@ export const CartProvider = ({ children }) => {
     setCartItems(cartItems.filter((item) => item.id !== productId));
   };
 
-  // Calculate total price of cart items
-  const calculateTotal = () => {
-    return cartItems
-      .reduce((total, item) => total + item.price * item.quantity, 0)
-      .toFixed(2);
-  };
-
   return (
     <CartContext.Provider
       value={{
@@ -137,7 +141,7 @@ export const CartProvider = ({ children }) => {
         addToCart,
         setItemQuantity,
         removeFromCart,
-        calculateTotal,
+        orderTotal,
         getGuestId,
         fetchCart,
       }}

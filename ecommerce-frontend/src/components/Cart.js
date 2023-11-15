@@ -1,12 +1,12 @@
 // src/components/Cart.js
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useCart } from "../context/CartContext";
 
 function Cart() {
-  const { cartItems, setItemQuantity, fetchCart } = useCart(); // Assume these functions are implemented in your context
+  const { cartItems, setItemQuantity, orderTotal } = useCart(); // Assume these functions are implemented in your context
 
-  const subtotal = 0; // Assuming this calculates the subtotal
+  const subtotal = orderTotal.toFixed(2); // Assuming this calculates the subtotal
   const total = subtotal; // Modify this as needed, e.g., add shipping or taxes
 
   // Handler for quantity change
@@ -84,7 +84,7 @@ function Cart() {
               </button>
             </div>
             <p className="text-lg mb-2">
-              <b>Subtotal:</b> ${subtotal}
+              <b>Subtotal:</b> ${total}
             </p>
             <p className="text-lg mb-4">
               <b>Total:</b> ${total}
