@@ -9,6 +9,11 @@ function Cart() {
   const subtotal = 0; // Assuming this calculates the subtotal
   const total = subtotal; // Modify this as needed, e.g., add shipping or taxes
 
+  // Handler for quantity change
+  const handleQuantityChange = (item, newQuantity) => {
+    setItemQuantity(item, newQuantity);
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4 text-center">Your Cart</h2>
@@ -22,7 +27,7 @@ function Cart() {
               className="flex items-center justify-between border-b mb-4 pb-4"
             >
               <img
-                src={item.image_urls[0]}
+                src={item.image_urls ? item.image_urls[0] : ""}
                 alt={item.name}
                 className="w-20 h-20 object-cover mr-4"
               />
@@ -31,7 +36,13 @@ function Cart() {
               <p>Price: ${item.price}</p>
               {/* </div> */}
               {/* Quantity Dropdown */}
-              <select className="border p-2 mr-2">
+              <select
+                className="border p-2 mr-2"
+                value={item.quantity}
+                onChange={(e) =>
+                  handleQuantityChange(item, parseInt(e.target.value))
+                }
+              >
                 {[1, 2, 3, 4, 5].map((qty) => (
                   <option key={qty} value={qty}>
                     {qty}

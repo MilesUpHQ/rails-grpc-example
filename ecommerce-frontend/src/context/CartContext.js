@@ -28,6 +28,7 @@ const getGuestId = () => {
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [orderId, setOrderId] = useState(null);
 
   useEffect(() => {
     fetchCart();
@@ -78,6 +79,7 @@ export const CartProvider = ({ children }) => {
       .then((response) => {
         // Assuming the API returns an array of cart items
         setCartItems(response.data.line_items);
+        setOrderId(response.data.id);
       })
       .catch((error) => {
         console.error("Error fetching cart data:", error);
@@ -85,13 +87,35 @@ export const CartProvider = ({ children }) => {
   };
 
   // Update quantity of a cart item
-  const setItemQuantity = (productId, quantity) => {
-    if (quantity <= 0) return;
-    setCartItems(
-      cartItems.map((item) =>
-        item.id === productId ? { ...item, quantity } : item
-      )
+  const setItemQuantity = (item, newQuantity) => {
+    if (newQuantity <= 0) return;
+
+    const guestId = getGuestId();
+    const updatedItems = cartItems.map((item) =>
+      item.id === item.id ? { ...item, quantity: newQuantity } : item
     );
+
+    // Update the backend
+    axios
+      .put(`http://localhost:3002/orders/${orderId}`, {
+        guest_id: guestId,
+        order: {
+          line_items_attributes: [
+            {
+              id: item.id,
+              product_id: item.product_id,
+              quantity: newQuantity,
+            },
+          ],
+        },
+      })
+      .then((response) => {
+        // Update local state only after successful backend update
+        setCartItems(updatedItems);
+      })
+      .catch((error) => {
+        console.error("Error updating item quantity:", error);
+      });
   };
 
   // Remove item from cart

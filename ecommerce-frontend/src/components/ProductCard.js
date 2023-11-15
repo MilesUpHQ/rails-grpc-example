@@ -1,10 +1,7 @@
 import React from "react";
-import { useCart } from "../context/CartContext";
 import { Link } from "react-router-dom";
 
 function ProductCard({ product }) {
-  const { addToCart } = useCart();
-
   return (
     <div className="border rounded-lg p-4 shadow hover:shadow-md transition">
       <Link to={`/product/${product.id}`}>
