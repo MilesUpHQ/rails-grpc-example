@@ -69,8 +69,24 @@ RSpec.describe OrdersController, type: :controller do
 
   describe 'PUT #update' do
     let(:new_attributes) { { total_price: 100.0 } }
+    let(:order) { create(:order) }
+    let(:line_item) { create(:line_item, order: order) }
+    let(:new_quantity) { 5 }
+    let(:new_attributes) { { line_items_attributes: [{ id: line_item.id, quantity: new_quantity }] } }
 
     context 'with valid params' do
+
+      it 'updates the line item' do
+        new_quantity = line_item.quantity + 1
+        patch :update, params: { id: order.id, order: { line_items_attributes: [{ id: line_item.id, quantity: new_quantity }] } }
+        expect(line_item.reload.quantity).to eq(new_quantity)
+      end
+
+      it 'updates the line item' do
+        put :update, params: { id: order.id, order: new_attributes }
+        expect(line_item.reload.quantity).to eq(new_quantity)
+      end
+
       it 'updates the requested order' do
         put :update, params: { id: order.id, order: new_attributes }
         order.reload

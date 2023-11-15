@@ -6,7 +6,7 @@ class OrdersController < ApplicationController
   # This will create a new order, acting as a cart initially
   def create
     @order = find_or_create_cart
-    @order.line_items.build(line_items_params)
+    update_or_add_line_items
 
     if @order.save
       render json: @order, status: :created
@@ -24,7 +24,6 @@ class OrdersController < ApplicationController
   def cart
     cart = find_current_user_cart
     if cart
-      p cart.line_items_with_product_details
       render json: cart.as_json.merge(line_items: cart.line_items_with_product_details), status: :ok
     else
       render json: { message: 'No active cart found' }, status: :not_found
@@ -63,6 +62,20 @@ class OrdersController < ApplicationController
       @order = Order.find(params[:id])
     end
 
+    def update_or_add_line_items
+      line_items_params.each do |line_item_params|
+        existing_item = @order.line_items.find_by(product_id: line_item_params[:product_id])
+        if existing_item
+          # Update quantity of the existing item
+          existing_item.quantity += line_item_params[:quantity].to_i
+          existing_item.save
+        else
+          # Add as a new line item
+          @order.line_items.build(line_item_params)
+        end
+      end
+    end
+
     def find_or_create_cart
       user_or_guest_id = @current_user_id ? { user_id: @current_user_id } : { guest_id: @current_guest_id }
 
@@ -82,19 +95,14 @@ class OrdersController < ApplicationController
       end
     end
 
-    # def current_user_or_guest_id
-    #   # Assumes @current_user_id and @current_guest_id are set in authenticate_user
-    #   @current_user_id || @current_guest_id
-    # end
-
 
     def order_params
-      params.require(:order).permit(:status, :total_price, :user_id, :guest_id)
+      params.require(:order).permit(:status, :total_price, :user_id, :guest_id, line_items_attributes: [:id, :product_id, :quantity, :price])
     end
 
     def line_items_params
       # Extract and return line item parameters
-      params.require(:order).permit(line_items: [:product_id, :quantity, :price])[:line_items]
+      params.require(:order).permit(line_items: [:id, :product_id, :quantity, :price])[:line_items]
     end
 
 end
