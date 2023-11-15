@@ -64,6 +64,7 @@ RSpec.configure do |config|
   config.render_views = true
 
   config.include FactoryBot::Syntax::Methods
+  config.include RequestSpecHelper, type: :request
   # arbitrary gems may also be filtered via:
   # config.filter_gems_from_backtrace("gem name")
 end
