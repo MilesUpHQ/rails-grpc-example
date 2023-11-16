@@ -84,8 +84,19 @@ const removeFromCart = async (productId) => {
   }
 };
 
-const setItemQuantity = async (lineItem, newQuantity) => {
+const setItemQuantity = async (product, quantity) => {
   const guestId = getGuestId();
+  // Find the line item in the cart to get its ID
+  const cartItems = JSON.parse(localStorage.getItem("cartItems"));
+  const lineItem = cartItems.find(
+    (item) => item.product_id === product.product_id
+  );
+
+  if (!lineItem) {
+    console.error("Item not found in cart");
+    return;
+  }
+
   try {
     const response = await axios.put(
       `http://localhost:3002/orders/${lineItem.order_id}`,
@@ -93,16 +104,11 @@ const setItemQuantity = async (lineItem, newQuantity) => {
         guest_id: guestId,
         order: {
           line_items_attributes: [
-            {
-              id: lineItem.id,
-              product_id: lineItem.product_id,
-              quantity: newQuantity,
-            },
+            { id: lineItem.id, product_id: product.id, quantity },
           ],
         },
       }
     );
-    // Update localStorage with the new cart data
     localStorage.setItem(
       "cartItems",
       JSON.stringify(response.data.updatedCartItems)

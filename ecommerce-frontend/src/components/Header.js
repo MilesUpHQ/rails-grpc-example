@@ -1,9 +1,22 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useCart } from "../context/CartContext";
+import { fetchCart } from "../utils/cartHelpers";
 
 function Header() {
-  const { cartItems, fetchCart } = useCart();
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    const updateCartCount = () => {
+      const cartItems = localStorage.getItem("cartItems");
+      setCartCount(JSON.parse(cartItems).length);
+    };
+
+    updateCartCount();
+
+    // Optional: Add event listener for cart updates if needed
+    // window.addEventListener("cartUpdated", updateCartCount);
+    // return () => window.removeEventListener("cartUpdated", updateCartCount);
+  }, []);
 
   return (
     <header className="bg-blue-600 text-white p-4">
@@ -13,7 +26,7 @@ function Header() {
           Home
         </Link>
         <Link to="/cart" className="text-white hover:text-blue-200">
-          Cart ({cartItems.length})
+          Cart ({cartCount})
         </Link>
       </nav>
     </header>
