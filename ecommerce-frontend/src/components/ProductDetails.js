@@ -3,15 +3,18 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { useCart } from "../context/CartContext";
+import { addToCart, removeFromCart, fetchCart } from "../utils/cartHelpers";
 
 function ProductDetails() {
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
-  const { addToCart } = useCart();
   const { productId } = useParams();
+  const [isLoading, setIsLoading] = useState(true);
+  const [isInCart, setIsInCart] = useState(false);
+  const [lineItem, setLineItem] = useState({});
 
   useEffect(() => {
+    setIsLoading(true);
     axios
       .get(`http://localhost:3001/products/${productId}`)
       .then((response) => {
@@ -19,12 +22,38 @@ function ProductDetails() {
       })
       .catch((error) => {
         console.error("Error fetching product:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }, [productId]);
+
+  useEffect(() => {
+    checkIfProductInCart();
+  }, []);
+
+  const checkIfProductInCart = async () => {
+    const cartItems = await fetchCart();
+    setIsInCart(
+      cartItems.some((item) => item.product_id === parseInt(productId))
+    );
+  };
+
+  const handleCartAction = async () => {
+    if (isInCart) {
+      removeFromCart(productId);
+    } else {
+      addToCart({ ...product, quantity });
+    }
+    await checkIfProductInCart();
+  };
 
   const handleQuantityChange = (increment) => {
     setQuantity((prev) => (increment ? prev + 1 : prev > 1 ? prev - 1 : prev));
   };
+
+  if (isLoading) return <div>Loading...</div>;
+  if (!product) return <div>Product not found.</div>;
 
   return (
     <div className="flex flex-col md:flex-row p-4">
@@ -65,9 +94,9 @@ function ProductDetails() {
             </div>
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
-              onClick={() => addToCart({ ...product, quantity })}
+              onClick={handleCartAction}
             >
-              Add to Cart
+              {isInCart ? "Remove" : "Add to Cart"}
             </button>
             <p>{product.description}</p>
           </div>

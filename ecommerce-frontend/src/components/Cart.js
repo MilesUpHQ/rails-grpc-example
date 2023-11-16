@@ -1,17 +1,50 @@
 // src/components/Cart.js
 
-import React from "react";
-import { useCart } from "../context/CartContext";
+import React, { useEffect, useState } from "react";
+import {
+  fetchCart,
+  setItemQuantity,
+  removeFromCart,
+} from "../utils/cartHelpers";
 
 function Cart() {
-  const { cartItems, setItemQuantity, orderTotal } = useCart(); // Assume these functions are implemented in your context
+  const [cartItems, setCartItems] = useState([]);
+  const [total, setTotal] = useState(0);
 
-  const subtotal = orderTotal.toFixed(2); // Assuming this calculates the subtotal
-  const total = subtotal; // Modify this as needed, e.g., add shipping or taxes
+  // const subtotal = orderTotal.toFixed(2); // Assuming this calculates the subtotal
+  // const total = subtotal; // Modify this as needed, e.g., add shipping or taxes
+
+  useEffect(() => {
+    const initializeCart = async () => {
+      const items = await fetchCart();
+      setCartItems(items);
+      calculateTotal(items);
+    };
+
+    initializeCart();
+  }, []);
+
+  const calculateTotal = (items) => {
+    const newTotal = items.reduce(
+      (acc, item) => acc + item.price * item.quantity,
+      0
+    );
+    setTotal(newTotal);
+  };
 
   // Handler for quantity change
-  const handleQuantityChange = (item, newQuantity) => {
-    setItemQuantity(item, newQuantity);
+  const handleQuantityChange = async (item, newQuantity) => {
+    await setItemQuantity(item, newQuantity);
+    const updatedCartItems = await fetchCart(); // Re-fetch cart to reflect updated quantities
+    setCartItems(updatedCartItems);
+    calculateTotal(updatedCartItems);
+  };
+
+  const handleRemoveFromCart = async (item) => {
+    await removeFromCart(item);
+    const updatedCartItems = await fetchCart(); // Re-fetch cart to reflect removed item
+    setCartItems(updatedCartItems);
+    calculateTotal(updatedCartItems);
   };
 
   return (
@@ -50,7 +83,10 @@ function Cart() {
                 ))}
               </select>
               {/* Remove Button */}
-              <button className="bg-white hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded">
+              <button
+                className="bg-white hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 border border-gray-400 rounded"
+                onClick={() => handleRemoveFromCart(item)}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"

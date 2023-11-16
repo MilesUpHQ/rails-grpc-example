@@ -28,10 +28,6 @@ export const CartProvider = ({ children }) => {
   const [orderTotal, setOrderTotal] = useState(0);
 
   useEffect(() => {
-    fetchCart();
-  }, []);
-
-  useEffect(() => {
     calculateTotal();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [cartItems]);
@@ -48,19 +44,6 @@ export const CartProvider = ({ children }) => {
   const addToCart = (product) => {
     const guestId = getGuestId();
     const existingItem = cartItems.find((item) => item.id === product.id);
-    if (existingItem) {
-      // Increase quantity if item already exists in cart
-      setCartItems(
-        cartItems.map((item) =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
-            : item
-        )
-      );
-    } else {
-      // Add new item to cart
-      setCartItems([...cartItems, { ...product, quantity: 1 }]);
-    }
 
     // Make API call to add product to cart in backend
     const { id, price, quantity } = product;
@@ -75,6 +58,19 @@ export const CartProvider = ({ children }) => {
       })
       .then((response) => {
         console.log("Product added to cart:", response.data);
+        if (existingItem) {
+          // Increase quantity if item already exists in cart
+          setCartItems(
+            cartItems.map((item) =>
+              item.id === product.id
+                ? { ...item, quantity: item.quantity + 1 }
+                : item
+            )
+          );
+        } else {
+          // Add new item to cart
+          setCartItems([...cartItems, { ...product, quantity: 1 }]);
+        }
       })
       .catch((error) => {
         console.error("Error adding product to cart:", error);
@@ -130,8 +126,24 @@ export const CartProvider = ({ children }) => {
   };
 
   // Remove item from cart
-  const removeFromCart = (productId) => {
-    setCartItems(cartItems.filter((item) => item.id !== productId));
+  const removeFromCart = (lineItem) => {
+    const guestId = getGuestId(); // Assuming you have a guest ID or similar identifier
+
+    // API call to remove the item
+    axios
+      .delete(`http://localhost:3002/orders/remove/${lineItem.id}`, {
+        params: { guest_id: guestId, order_id: lineItem.order_id },
+      })
+      .then((response) => {
+        // Update local state with the updated cart items
+        const updatedCartItems = cartItems.filter(
+          (item) => item.id !== lineItem.id
+        );
+        setCartItems(updatedCartItems); // Adjust according to your API response
+      })
+      .catch((error) => {
+        console.error("Error removing item from cart:", error);
+      });
   };
 
   return (

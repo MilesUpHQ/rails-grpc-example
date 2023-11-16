@@ -1,9 +1,9 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
 function Header() {
-  const { cartItems } = useCart();
+  const { cartItems, fetchCart } = useCart();
 
   return (
     <header className="bg-blue-600 text-white p-4">
