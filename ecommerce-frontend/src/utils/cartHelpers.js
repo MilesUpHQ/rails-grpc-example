@@ -61,7 +61,6 @@ const removeFromCart = async (product) => {
   const lineItem = cartItems.find(
     (item) => item.product_id === product.product_id
   );
-  console.log(lineItem);
 
   if (!lineItem) {
     console.error("Item not found in cart");
@@ -83,6 +82,7 @@ const removeFromCart = async (product) => {
   } catch (error) {
     console.error("Error removing item from cart:", error);
   }
+  fetchCart();
 };
 
 const setItemQuantity = async (productId, quantity) => {
