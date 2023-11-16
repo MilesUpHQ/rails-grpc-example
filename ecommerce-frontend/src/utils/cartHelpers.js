@@ -55,12 +55,13 @@ const addToCart = async (product) => {
   }
 };
 
-const removeFromCart = async (productId) => {
+const removeFromCart = async (product) => {
   const guestId = getGuestId();
   const cartItems = JSON.parse(localStorage.getItem("cartItems"));
-  const lineItem = cartItems.filter(
-    (item) => item.product_id === parseInt(productId)
-  )[0];
+  const lineItem = cartItems.find(
+    (item) => item.product_id === product.product_id
+  );
+  console.log(lineItem);
 
   if (!lineItem) {
     console.error("Item not found in cart");
