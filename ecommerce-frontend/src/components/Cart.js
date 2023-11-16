@@ -73,7 +73,10 @@ function Cart() {
                 className="border p-2 mr-2"
                 value={item.quantity}
                 onChange={(e) =>
-                  handleQuantityChange(item, parseInt(e.target.value))
+                  handleQuantityChange(
+                    item.product_id,
+                    parseInt(e.target.value)
+                  )
                 }
               >
                 {[1, 2, 3, 4, 5].map((qty) => (

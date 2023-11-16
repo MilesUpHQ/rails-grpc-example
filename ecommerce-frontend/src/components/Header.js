@@ -8,7 +8,8 @@ function Header() {
   useEffect(() => {
     const updateCartCount = () => {
       const cartItems = localStorage.getItem("cartItems");
-      setCartCount(JSON.parse(cartItems).length);
+      const count = cartItems ? JSON.parse(cartItems).length : 0;
+      setCartCount(count);
     };
 
     updateCartCount();

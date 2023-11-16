@@ -84,27 +84,33 @@ const removeFromCart = async (productId) => {
   }
 };
 
-const setItemQuantity = async (product, quantity) => {
+const setItemQuantity = async (productId, quantity) => {
   const guestId = getGuestId();
   // Find the line item in the cart to get its ID
-  const cartItems = JSON.parse(localStorage.getItem("cartItems"));
-  const lineItem = cartItems.find(
-    (item) => item.product_id === product.product_id
+  const local = localStorage.getItem("cartItems");
+  const cartItems = local ? JSON.parse(local) : [];
+  const lineItem = cartItems.filter(
+    (item) => item.product_id === parseInt(productId)
   );
 
-  if (!lineItem) {
+  if (!lineItem[0]) {
     console.error("Item not found in cart");
     return;
   }
 
   try {
     const response = await axios.put(
-      `http://localhost:3002/orders/${lineItem.order_id}`,
+      `http://localhost:3002/orders/${lineItem[0].order_id}`,
       {
         guest_id: guestId,
         order: {
           line_items_attributes: [
-            { id: lineItem.id, product_id: product.id, quantity },
+            {
+              id: lineItem[0].id,
+              product_id: productId,
+              quantity,
+              price: lineItem[0].price,
+            },
           ],
         },
       }

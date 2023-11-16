@@ -3,7 +3,12 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
-import { addToCart, removeFromCart, fetchCart } from "../utils/cartHelpers";
+import {
+  addToCart,
+  removeFromCart,
+  fetchCart,
+  setItemQuantity,
+} from "../utils/cartHelpers";
 
 function ProductDetails() {
   const [product, setProduct] = useState(null);
@@ -34,9 +39,16 @@ function ProductDetails() {
 
   const checkIfProductInCart = async () => {
     const cartItems = await fetchCart();
+    const itemCart = cartItems.find(
+      (item) => item.product_id === parseInt(productId)
+    );
     setIsInCart(
       cartItems.some((item) => item.product_id === parseInt(productId))
     );
+    if (itemCart) {
+      setLineItem(itemCart);
+      setQuantity(itemCart.quantity);
+    }
   };
 
   const handleCartAction = async () => {
@@ -48,8 +60,20 @@ function ProductDetails() {
     await checkIfProductInCart();
   };
 
-  const handleQuantityChange = (increment) => {
-    setQuantity((prev) => (increment ? prev + 1 : prev > 1 ? prev - 1 : prev));
+  const handleQuantityChange = async (increment) => {
+    const newQuantity = increment
+      ? quantity + 1
+      : quantity > 1
+      ? quantity - 1
+      : 1;
+    setQuantity(newQuantity);
+
+    if (isInCart) {
+      // Assuming you have a function in cartHelpers to update quantity
+      await setItemQuantity(productId, newQuantity);
+      // Re-fetch cart items to update the local cart state if necessary
+    }
+    fetchCart();
   };
 
   if (isLoading) return <div>Loading...</div>;
