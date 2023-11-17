@@ -6,6 +6,7 @@ RSpec.describe 'Products', type: :request do
   let(:user_id) { 1 } # Use a fixed user ID for testing
   # let(:jwt_secret) { 'test_secret' }
   let(:token) { JWTHelper.generate_jwt_token({ user_id: user_id }) }
+  let(:image) { fixture_file_upload(Rails.root.join('spec/fixtures/files', 'image.jpeg'), 'image/jpeg') }
   let(:valid_headers) {
     {
       'Accept' => 'application/json',
@@ -66,7 +67,7 @@ RSpec.describe 'Products', type: :request do
         inventory_count: 10
       }
     end
-    let(:image) { fixture_file_upload(Rails.root.join('spec/fixtures/files', 'image.jpeg'), 'image/jpeg') }
+
     let(:large_image) { fixture_file_upload(Rails.root.join('spec/fixtures/files', 'large_image.jpg'), 'image/jpeg') }
     let(:valid_image) { generate_test_image }
     let(:invalid_image) { generate_test_image(name: 'test_file.txt', content_type: 'text/plain') }
@@ -89,13 +90,6 @@ RSpec.describe 'Products', type: :request do
         expect(Product.last.images).to be_attached
         # expect(Product.last.images.first.blob.byte_size).to be > 0
       end
-
-      # it 'attaches the uploaded file' do
-      #   file = generate_test_image(size: 2.megabytes)
-      #   post products_path, params: { product: valid_attributes.merge(images: [file]) }, headers: valid_headers.merge('Content-Type': 'multipart/form-data')
-
-      #   expect(Product.last.images.first.blob.byte_size).to be > 0
-      # end
 
       it 'rejects non-image files' do
         post products_path, params: { product: valid_attributes.merge(images: [invalid_image]) }, headers: valid_headers.merge('Content-Type': 'multipart/form-data')
@@ -123,12 +117,13 @@ RSpec.describe 'Products', type: :request do
   end
 
   describe 'GET /products/:id' do
-    let(:product) { create(:product) }
+    let(:product) { create(:product, images: [image]) }
 
     it 'retrieves a specific product with images' do
       get "/products/#{product.id}", headers: valid_headers
       expect(response).to have_http_status(:ok)
       expect(json['id']).to eq(product.id)
+      p json
       expect(json['image_urls']).to be_present
     end
 
