@@ -65,4 +65,6 @@ Rails.application.configure do
   config.active_storage.service = :test
   config.active_storage.queue = :test
   config.active_storage.analyze = :inline
+
+  default_url_options[:host] = "localhost"
 end
