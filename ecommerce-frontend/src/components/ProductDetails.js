@@ -18,6 +18,7 @@ function ProductDetails() {
   const [isLoading, setIsLoading] = useState(true);
   const [isInCart, setIsInCart] = useState(false);
   const [lineItem, setLineItem] = useState({});
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     setIsLoading(true);
@@ -53,6 +54,7 @@ function ProductDetails() {
   };
 
   const handleCartAction = async () => {
+    setIsAdding(true);
     if (isInCart) {
       removeFromCart(lineItem);
       setIsInCart(false);
@@ -60,6 +62,7 @@ function ProductDetails() {
       addToCart({ ...product, quantity });
       setIsInCart(true);
     }
+    setIsAdding(false);
     // await checkIfProductInCart();
   };
 
@@ -122,8 +125,11 @@ function ProductDetails() {
             <button
               className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mb-4"
               onClick={handleCartAction}
+              disabled={isAdding}
             >
-              {isInCart ? "Remove" : "Add to Cart"}
+              {isAdding ? "Loading..." : isInCart ? "Remove" : "Add to Cart"}
+
+              {/* {isInCart ? "Remove" : "Add to Cart"} */}
             </button>
             <p>{product.description}</p>
           </div>
