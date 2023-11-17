@@ -5,8 +5,12 @@ RSpec.describe 'Products', type: :request do
   # Mock the token verification process
   let(:user_id) { 1 } # Use a fixed user ID for testing
   # let(:jwt_secret) { 'test_secret' }
-  let(:token) { JWTHelper.generate_jwt_token({ user_id: user_id }) }
-  let(:image) { fixture_file_upload(Rails.root.join('spec/fixtures/files', 'image.jpeg'), 'image/jpeg') }
+  let(:token) {
+    JWTHelper.generate_jwt_token({ user_id: user_id })
+  }
+  let(:image) {
+    fixture_file_upload(Rails.root.join('spec/fixtures/files', 'image.jpeg'), 'image/jpeg')
+  }
   let(:valid_headers) {
     {
       'Accept' => 'application/json',
@@ -24,7 +28,14 @@ RSpec.describe 'Products', type: :request do
   }
 
   describe 'POST /products' do
-    let(:valid_attributes) { { name: 'New Product', description: 'Great product', price: 29.99, inventory_count: 10 } }
+    let(:valid_attributes) {
+      {
+        name: 'New Product',
+        description: 'Great product',
+        price: 29.99,
+        inventory_count: 10
+      }
+    }
 
     context 'with valid token' do
       it 'creates a new product' do
@@ -35,7 +46,9 @@ RSpec.describe 'Products', type: :request do
 
     context 'with invalid token' do
       it 'does not create a new product' do
-        post '/products', params: valid_attributes.to_json, headers: { 'Authorization' => 'Bearer invalid_token' }
+        post '/products', params: valid_attributes.to_json, headers: {
+          'Authorization' => 'Bearer invalid_token'
+        }
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -54,8 +67,6 @@ RSpec.describe 'Products', type: :request do
         expect(json).to have_key('errors')
       end
     end
-
-
   end
 
   describe 'POST /products with images' do
@@ -68,7 +79,9 @@ RSpec.describe 'Products', type: :request do
       }
     end
 
-    let(:large_image) { fixture_file_upload(Rails.root.join('spec/fixtures/files', 'large_image.jpg'), 'image/jpeg') }
+    let(:large_image) {
+      fixture_file_upload(Rails.root.join('spec/fixtures/files', 'large_image.jpg'), 'image/jpeg')
+    }
     let(:valid_image) { generate_test_image }
     let(:invalid_image) { generate_test_image(name: 'test_file.txt', content_type: 'text/plain') }
     let(:oversized_image) { generate_test_image(size: 3.megabytes)}

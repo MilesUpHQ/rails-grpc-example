@@ -3,12 +3,19 @@ require 'rails_helper'
 
 RSpec.describe ProductsController, type: :controller do
   let(:valid_attributes) {
-    { name: 'Sample Product', description: 'This is a sample product', price: 10.0, inventory_count: 5 }
+    {
+      name: 'Sample Product',
+      description: 'This is a sample product',
+      price: 10.0,
+      inventory_count: 5
+    }
   }
   let(:invalid_attributes) {
     { name: nil, price: -10.0 }
   }
-  let(:image) { fixture_file_upload(Rails.root.join('spec/fixtures/files', 'image.jpeg'), 'image/jpeg') }
+  let(:image) {
+    fixture_file_upload(Rails.root.join('spec/fixtures/files', 'image.jpeg'), 'image/jpeg')
+  }
   let(:product) { create(:product, images: [image]) } # Assuming FactoryBot is set up
   let(:guest_id) { "guest_#{SecureRandom.hex(10)}" } # Example guest ID
   let(:user_id) { rand(1..100)}
