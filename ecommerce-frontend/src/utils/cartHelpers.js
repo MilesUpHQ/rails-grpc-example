@@ -77,10 +77,11 @@ const removeFromCart = async (product) => {
       }
     );
     // Update localStorage with the new cart data
-    localStorage.setItem(
-      "cartItems",
-      JSON.stringify(response.data.updatedCartItems)
+    console.log(response.data);
+    const updatedCartItems = cartItems.filter(
+      (item) => item.id !== response.data.id
     );
+    localStorage.setItem("cartItems", updatedCartItems);
   } catch (error) {
     console.error("Error removing item from cart:", error);
   }
