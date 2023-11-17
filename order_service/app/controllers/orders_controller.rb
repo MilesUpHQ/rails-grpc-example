@@ -45,7 +45,7 @@ class OrdersController < ApplicationController
 
     if line_item
       line_item.destroy
-      render json: { message: 'Item removed from cart' }, status: :ok
+      render json: line_item, status: :ok
     else
       render json: { error: 'Item not found in cart' }, status: :not_found
     end
