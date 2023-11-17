@@ -9,6 +9,7 @@ import {
   fetchCart,
   setItemQuantity,
 } from "../utils/cartHelpers";
+import API_URLS from "../utils/apiUrls";
 
 function ProductDetails() {
   const [product, setProduct] = useState(null);
@@ -21,7 +22,7 @@ function ProductDetails() {
   useEffect(() => {
     setIsLoading(true);
     axios
-      .get(`http://localhost:3001/products/${productId}`)
+      .get(API_URLS.FETCH_PRODUCT(productId))
       .then((response) => {
         setProduct(response.data);
       })

@@ -1,5 +1,6 @@
 import axios from "axios";
 import Cookies from "js-cookie";
+import API_URLS from "./apiUrls";
 
 const generateGuestId = () => {
   const timestamp = new Date().getTime().toString(36);
@@ -19,7 +20,7 @@ const getGuestId = () => {
 const fetchCart = async () => {
   try {
     const guestId = getGuestId();
-    const response = await axios.get(`http://localhost:3002/orders/cart`, {
+    const response = await axios.get(API_URLS.FETCH_CART, {
       params: { guest_id: guestId },
     });
     localStorage.setItem("cartItems", JSON.stringify(response.data.line_items));
@@ -32,7 +33,7 @@ const fetchCart = async () => {
 const addToCart = async (product) => {
   const guestId = getGuestId();
   try {
-    const response = await axios.post("http://localhost:3002/orders", {
+    const response = await axios.post(API_URLS.ADD_TO_CART, {
       order: {
         line_items: [
           {
@@ -70,7 +71,7 @@ const removeFromCart = async (product) => {
 
   try {
     const response = await axios.delete(
-      `http://localhost:3002/orders/remove/${lineItem.id}`,
+      API_URLS.REMOVE_CART_ITEM(lineItem.id),
       {
         params: { guest_id: guestId, order_id: lineItem.order_id },
       }
@@ -102,7 +103,7 @@ const setItemQuantity = async (productId, quantity) => {
 
   try {
     const response = await axios.put(
-      `http://localhost:3002/orders/${lineItem[0].order_id}`,
+      API_URLS.UPDATE_CART_ITEM(lineItem[0].order_id),
       {
         guest_id: guestId,
         order: {

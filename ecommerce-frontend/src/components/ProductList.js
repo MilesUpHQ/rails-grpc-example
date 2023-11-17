@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import ProductCard from "./ProductCard";
+import API_URLS from "../utils/apiUrls";
 
 function ProductList() {
   const [products, setProducts] = useState([]);
 
   useEffect(() => {
     axios
-      .get("http://localhost:3001/products")
+      .get(API_URLS.LIST_PRODUCTS)
       .then((response) => {
         setProducts(response.data);
       })
