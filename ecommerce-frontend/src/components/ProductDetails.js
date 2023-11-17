@@ -39,12 +39,11 @@ function ProductDetails() {
 
   const checkIfProductInCart = async () => {
     const cartItems = await fetchCart();
-    const itemCart =
-      cartItems &&
-      cartItems.find((item) => item.product_id === parseInt(productId));
+    const itemCart = cartItems?.find(
+      (item) => item.product_id === parseInt(productId)
+    );
     setIsInCart(
-      cartItems &&
-        cartItems.some((item) => item.product_id === parseInt(productId))
+      cartItems?.some((item) => item.product_id === parseInt(productId))
     );
     if (itemCart) {
       setLineItem(itemCart);
@@ -55,10 +54,12 @@ function ProductDetails() {
   const handleCartAction = async () => {
     if (isInCart) {
       removeFromCart(lineItem);
+      setIsInCart(false);
     } else {
       addToCart({ ...product, quantity });
+      setIsInCart(true);
     }
-    await checkIfProductInCart();
+    // await checkIfProductInCart();
   };
 
   const handleQuantityChange = async (increment) => {
