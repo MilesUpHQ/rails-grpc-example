@@ -37,14 +37,15 @@ RSpec.describe ProductsController, type: :controller do
   end
 
   describe "GET #details" do
+    let(:another_product) { create(:product, images: [image]) }
 
     before do
-      another_product = create(:product, images: [image])
       get :details, params: { product_ids: "#{product.id},#{another_product.id}" }
     end
 
     it "returns a success response for valid product IDs" do
       expect(response).to be_successful
+      expect(json).to all(include("name", "description", "price", "inventory_count"))
     end
 
     it "to include image_urls [] with atleast 1 image" do
@@ -65,8 +66,10 @@ RSpec.describe ProductsController, type: :controller do
     end
 
     context "with invalid params" do
-      it "returns a failure response" do
-        post :create, params: { product: invalid_attributes }
+      it "does not create a new Product and returns an error" do
+        expect {
+          post :create, params: { product: invalid_attributes }
+        }.not_to change(Product, :count)
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -94,7 +97,7 @@ RSpec.describe ProductsController, type: :controller do
     end
 
     context "with invalid params" do
-      it "returns a failure response" do
+      it "does not update the product and returns an error" do
         put :update, params: { id: product.id, product: invalid_attributes }
         expect(response).to have_http_status(:unprocessable_entity)
       end
@@ -102,10 +105,11 @@ RSpec.describe ProductsController, type: :controller do
   end
 
   describe "DELETE #destroy" do
+    let!(:product_to_delete) { create(:product) }
+
     it "destroys the requested product" do
-      product  # create product
       expect {
-        delete :destroy, params: { id: product.id }
+        delete :destroy, params: { id: product_to_delete.id }
       }.to change(Product, :count).by(-1)
       expect(response).to have_http_status(:no_content)
     end
