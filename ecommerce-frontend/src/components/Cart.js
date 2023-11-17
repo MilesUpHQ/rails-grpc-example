@@ -6,10 +6,12 @@ import {
   setItemQuantity,
   removeFromCart,
 } from "../utils/cartHelpers";
+import { useNavigate } from "react-router-dom";
 
 function Cart() {
   const [cartItems, setCartItems] = useState([]);
   const [total, setTotal] = useState(0);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const initializeCart = async () => {
@@ -42,6 +44,10 @@ function Cart() {
     const updatedCartItems = await fetchCart(); // Re-fetch cart to reflect removed item
     setCartItems(updatedCartItems);
     calculateTotal(updatedCartItems);
+  };
+
+  const handleCheckout = () => {
+    navigate("/checkout"); // Navigate to the checkout page
   };
 
   return (
@@ -125,7 +131,10 @@ function Cart() {
             <p className="text-lg mb-4">
               <b>Total:</b> ${total}
             </p>
-            <button className="bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full w-full mb-4">
+            <button
+              onClick={handleCheckout}
+              className="bg-blue-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded-full w-full mb-4 checkout-button"
+            >
               Checkout
             </button>
             {/* Additional Form (e.g., Discount Code) */}
