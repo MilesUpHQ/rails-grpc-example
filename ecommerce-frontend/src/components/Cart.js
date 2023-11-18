@@ -82,7 +82,7 @@ function Cart() {
                   )
                 }
               >
-                {[1, 2, 3, 4, 5].map((qty) => (
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((qty) => (
                   <option key={qty} value={qty}>
                     {qty}
                   </option>

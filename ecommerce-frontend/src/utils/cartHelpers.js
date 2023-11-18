@@ -92,7 +92,7 @@ const setItemQuantity = async (productId, quantity) => {
   const guestId = getGuestId();
   // Find the line item in the cart to get its ID
   const local = localStorage.getItem("cartItems");
-  const cartItems = local && typeof local === "string" ? JSON.parse(local) : [];
+  const cartItems = local && local !== "undefined" ? JSON.parse(local) : [];
   const lineItem = cartItems.filter(
     (item) => item.product_id === parseInt(productId)
   );
