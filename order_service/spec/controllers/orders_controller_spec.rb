@@ -4,17 +4,20 @@ require 'rails_helper'
 RSpec.describe OrdersController, type: :controller do
 
   let(:user_id) { rand(1..100)}
-  let(:valid_attributes) { { user_id: user_id, total_price: 50.0, status: 'pending', line_items: {product_id: rand(1..99), quantity: 1, price: 50.0} } }
+  let(:valid_attributes) { { user_id: user_id, total_price: 50.0, status: 'pending', line_items: [{product_id: rand(1..99), quantity: 1, price: 50.0}] } }
   let(:invalid_attributes) { { user_id: nil, total_price: -10.0, status: nil } }
   let(:token) { generate_token(user_id) }
   let(:order) {create(:order)}
-  let(:guest_id) { "guest_#{SecureRandom.hex(10)}" } # Example guest ID
+  let(:guest_id) { "#{SecureRandom.hex(10)}" } # Example guest ID
 
   # Simulate authentication
-  before do
-    allow(controller).to receive(:authenticate_user).and_return(user_id)
-    controller.instance_variable_set(:@current_user_id, user_id)
-    controller.instance_variable_set(:@current_guest_id, guest_id)
+  before do |context|
+    if context.metadata[:guest]
+      controller.instance_variable_set(:@current_guest_id, guest_id)
+    else
+      allow(controller).to receive(:authenticate_user).and_return(user_id)
+      controller.instance_variable_set(:@current_user_id, user_id)
+    end
   end
 
   describe 'GET #show' do
@@ -36,10 +39,11 @@ RSpec.describe OrdersController, type: :controller do
       end
     end
 
-    context 'as a guest user' do
+    context 'as a guest user', :guest do
       it 'creates a new order for the guest' do
         request.headers['Guest-ID'] = guest_id
-        post :create, params: { order: valid_attributes, guest_id: guest_id }
+        guest_attributes = valid_attributes.except :user_id
+        post :create, params: { order: guest_attributes, guest_id: guest_id }
         expect(response).to have_http_status(:created)
         expect(Order.last.guest_id).to eq(guest_id)
       end
@@ -68,29 +72,31 @@ RSpec.describe OrdersController, type: :controller do
   end
 
   describe 'PUT #update' do
-    let(:new_attributes) { { total_price: 100.0 } }
+    let(:new_attributes) { { total_price: 150.0, quantity: 3 } }
     let(:order) { create(:order) }
     let(:line_item) { create(:line_item, order: order) }
-    let(:new_quantity) { 5 }
-    let(:new_attributes) { { line_items_attributes: [{ id: line_item.id, quantity: new_quantity }] } }
+    let(:updated_order_params) {
+      {
+        id: order.id,
+        order:
+        {
+          line_items_attributes:
+          [{ id: order.line_items.first.id, quantity: 3 }]
+        }
+      }
+    }
 
     context 'with valid params' do
 
       it 'updates the line item' do
-        new_quantity = line_item.quantity + 1
-        patch :update, params: { id: order.id, order: { line_items_attributes: [{ id: line_item.id, quantity: new_quantity }] } }
-        expect(line_item.reload.quantity).to eq(new_quantity)
+        patch :update, params: updated_order_params
+        expect(order.line_items.reload.first.quantity).to eq(3)
       end
 
-      it 'updates the line item' do
-        put :update, params: { id: order.id, order: new_attributes }
-        expect(line_item.reload.quantity).to eq(new_quantity)
-      end
-
-      it 'updates the requested order' do
-        put :update, params: { id: order.id, order: new_attributes }
+      it 'updates total_price in the requested order' do
+        put :update, params: updated_order_params
         order.reload
-        expect(order.total_price).to eq(100.0)
+        expect(order.total_price.round).to eq(300)
         expect(response).to have_http_status(:ok)
       end
     end

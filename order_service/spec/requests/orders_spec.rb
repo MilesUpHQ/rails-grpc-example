@@ -37,6 +37,8 @@ RSpec.describe "Orders", type: :request do
       it "creates a new Order" do
         post orders_path, params: { order: valid_attributes }, headers: valid_headers
         expect(response).to have_http_status(:created)
+        p json_response
+        expect(json_response["line_items"]).not_to be_empty
       end
     end
 

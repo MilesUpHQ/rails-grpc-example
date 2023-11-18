@@ -5,6 +5,7 @@ FactoryBot.define do
     product_id {rand(1..100)} # Assuming a product factory is available
     # quantity { Faker::Number.between(from: 1, to: 10) }
     quantity { 1 }
-    price { Faker::Commerce.price(range: 1..20) }
+    price { 100.0 }
+    # price { Faker::Commerce.price(range: 1..20) }
   end
 end

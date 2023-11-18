@@ -7,6 +7,11 @@ class Order < ApplicationRecord
 
   validates :total_price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   validates :status, presence: true, inclusion: { in: %w[cart pending completed cancelled] }
+  validate :must_have_at_least_one_line_item
+
+  def must_have_at_least_one_line_item
+    errors.add(:base, 'Order must have at least one line item') if !line_items.present?
+  end
 
   def line_items_with_product_details
     product_ids = line_items.pluck(:product_id).uniq
@@ -20,4 +25,5 @@ class Order < ApplicationRecord
       item_attributes.merge(product_details)
     end
   end
+
 end
