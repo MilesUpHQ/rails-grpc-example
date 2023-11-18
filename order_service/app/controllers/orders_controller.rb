@@ -78,7 +78,7 @@ class OrdersController < ApplicationController
         existing_item = @order.line_items.find_by(product_id: line_item_params[:product_id])
         if existing_item
           # Update quantity of the existing item
-          existing_item.quantity += line_item_params[:quantity].to_i
+          existing_item.quantity = line_item_params[:quantity].to_i
           existing_item.save
         else
           # Add as a new line item
