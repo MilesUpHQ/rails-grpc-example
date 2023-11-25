@@ -71,8 +71,6 @@ RSpec.describe "Authentications", type: :request do
     end
   end
 
-  # Continue in spec/requests/authentication_spec.rb
-
   describe "POST /login" do
     let(:user) { FactoryBot.create(:user, email: 'user@example.com', password: 'password') }
 
@@ -81,7 +79,7 @@ RSpec.describe "Authentications", type: :request do
         post '/login', params: { email: user.email, password: user.password }
       end
 
-      it "logs in the user" do
+      it "logs in the user and returns a success status" do
         expect(response).to have_http_status(:ok)
       end
 

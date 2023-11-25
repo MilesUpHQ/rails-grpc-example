@@ -216,6 +216,8 @@ GEM
       rspec-support (~> 3.10)
     rspec-support (3.12.1)
     ruby2_keywords (0.0.5)
+    shoulda-matchers (5.3.0)
+      activesupport (>= 5.2.0)
     sqlite3 (1.6.8-aarch64-linux)
     sqlite3 (1.6.8-arm64-darwin)
     sqlite3 (1.6.8-x86_64-linux)
@@ -248,6 +250,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 7.1.1)
   rspec-rails (~> 5.0)
+  shoulda-matchers
   sqlite3 (~> 1.4)
   tzinfo-data
 

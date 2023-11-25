@@ -11,7 +11,6 @@ RSpec.describe ProductClient, type: :model do
     end
 
     it 'fetches product details successfully' do
-      debugger
       result = ProductClient.fetch_details(product_ids)
       expect(HTTParty).to have_received(:get).with(product_service_url)
       expect(result).to eq({ 'data' => 'some data' })
