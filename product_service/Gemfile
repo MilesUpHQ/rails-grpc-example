@@ -10,6 +10,7 @@ gem 'pg' # If using PostgreSQL
 gem 'puma' # Server
 gem 'active_model_serializers' # For JSON serialization
 gem 'jwt'
+gem 'grpc'
 
 group :development, :test do
   gem 'rspec-rails' # For testing

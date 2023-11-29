@@ -15,15 +15,24 @@ class Order < ApplicationRecord
 
   def line_items_with_product_details
     product_ids = line_items.pluck(:product_id).uniq
-    products_info = ProductClient.fetch_details(product_ids)
+    # products_info = ProductClient.fetch_details(product_ids)
+    client = ProductServiceClient.new
+    products = client.get_products(product_ids)
+    p products
 
-    line_items.map do |item|
-      item_attributes = item.attributes
-      product_details = products_info.select{|product| product["id"] == item.product_id}.first || {}
-      product_details["product_id"] = product_details["id"]
-      product_details.delete("id")
-      item_attributes.merge(product_details)
-    end
+    # line_items.map do |item|
+    #   item_attributes = item.attributes
+    #   product_details = products_info.select{|product| product["id"] == item.product_id}.first || {}
+    #   product_details["product_id"] = product_details["id"]
+    #   product_details.delete("id")
+    #   item_attributes.merge(product_details)
+    # end
+  end
+
+  def get_products
+    client = ProductServiceClient.new
+    products = client.get_products([1,2])
+    p products
   end
 
 end
